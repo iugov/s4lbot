@@ -1,6 +1,6 @@
 from src import sample
+import pytest
 
 
-class TestSample:
-    def test_say_hello(self):
-        assert "hello!" == sample.say_hello()
+def test_say_hello():
+    assert "hello!" == sample.say_hello()
