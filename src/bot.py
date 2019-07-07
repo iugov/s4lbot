@@ -20,23 +20,23 @@ def get_url():
 
 
 def send_content(bot, chat_id, content):
-    image_extensions = ['jpg','jpeg','png']
-    video_extensions = ['mp4', 'mov', 'webm']
-    animation_extensions = ['gif']
-    
+    image_extensions = ["jpg", "jpeg", "png"]
+    video_extensions = ["mp4", "mov", "webm"]
+    animation_extensions = ["gif"]
+
     allowed_extensions = image_extensions + video_extensions + animation_extensions
 
-    file_extension = ''
+    file_extension = ""
     while file_extension not in allowed_extensions:
         url = get_url()
-        file_extension = re.search("([^.]*)$",url).group(1).lower()
-    
+        file_extension = re.search("([^.]*)$", url).group(1).lower()
+
     if file_extension in image_extensions:
         bot.send_photo(chat_id=chat_id, photo=url)
-    
+
     if file_extension in video_extensions:
         bot.send_video(chat_id=chat_id, video=url)
-    
+
     if file_extension in animation_extensions:
         bot.send_animation(chat_id=chat_id, animation=url)
 
