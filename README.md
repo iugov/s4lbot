@@ -6,4 +6,4 @@
 
 S4L bot lets you save links (articles, videos, books, etc.), categorize them and receive notifications so that you actually come back to what you saved and get things done.
 
-Available in Telegram (under development): [S4LBot](https://t.me/S4LBot)
+[Available in Telegram](https://t.me/S4LBot) (in development)
