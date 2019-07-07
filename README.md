@@ -5,7 +5,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6a2e4e371be445e7ab8b1d7bb83a2e0d)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=iugov/s4lbot&amp;utm_campaign=Badge_Grade)
 
 <p align="center">
-  <img src="images/robot.jpg">
+  <img src="images/cover.jpg">
 </p>
 
 [Available in Telegram](https://t.me/S4LBot)
