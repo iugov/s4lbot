@@ -13,6 +13,7 @@ flake8 = "*"
 [packages]
 python-telegram-bot = "*"
 requests = "*"
+urlextract = "*"
 
 [requires]
 python_version = "3.7"

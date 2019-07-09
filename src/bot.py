@@ -1,6 +1,8 @@
 from settings import API_TOKEN
 
 from telegram.ext import Updater, InlineQueryHandler, CommandHandler, RegexHandler
+from urlextract import URLExtract
+
 import telegram
 import requests
 import time
@@ -54,6 +56,15 @@ def info(bot, update):
     )
 
 
+def echo_urls(bot, update):
+    urls = URLExtract().find_urls(update.message.text)
+    if urls:
+        bot.send_message(
+            chat_id=update.message.chat_id,
+            text="Link(s) found: {}.".format(", ".join(urls)),
+        )
+
+
 def start(bot, update):
     kb = [
         [telegram.InlineKeyboardButton("NEXT DOGGO"), telegram.KeyboardButton("INFO")]
@@ -73,6 +84,7 @@ def main():
 
     dp = updater.dispatcher
     dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("links", echo_urls))  # TODO Remove after testing.
     dp.add_handler(RegexHandler("NEXT DOGGO", next_dog))
     dp.add_handler(RegexHandler("INFO", info))
 
