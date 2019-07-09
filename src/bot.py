@@ -100,6 +100,7 @@ def main():
     dp.add_handler(CommandHandler("links", echo_urls))  # TODO Remove after testing.
     dp.add_handler(RegexHandler("NEXT DOGGO", next_dog))
     dp.add_handler(RegexHandler("INFO", info))
+    dp.add_handler(MessageHandler(Filters.command, unknown))
     dp.add_handler(MessageHandler(~Filters.command, unknown))
 
     updater.start_polling()
