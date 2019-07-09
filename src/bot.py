@@ -1,6 +1,13 @@
 from settings import API_TOKEN
 
-from telegram.ext import Updater, InlineQueryHandler, CommandHandler, RegexHandler
+from telegram.ext import (
+    Updater,
+    InlineQueryHandler,
+    CommandHandler,
+    RegexHandler,
+    MessageHandler,
+    Filters,
+)
 from urlextract import URLExtract
 
 import telegram
@@ -79,6 +86,12 @@ def start(bot, update):
     bot.send_photo(chat_id=update.message.chat_id, photo=get_url())
 
 
+def unknown(bot, update):
+    bot.send_message(
+        chat_id=update.message.chat_id, text="Hmm... I don't know that one."
+    )
+
+
 def main():
     updater = Updater(API_TOKEN)
 
@@ -87,6 +100,7 @@ def main():
     dp.add_handler(CommandHandler("links", echo_urls))  # TODO Remove after testing.
     dp.add_handler(RegexHandler("NEXT DOGGO", next_dog))
     dp.add_handler(RegexHandler("INFO", info))
+    dp.add_handler(MessageHandler(~Filters.command, unknown))
 
     updater.start_polling()
     updater.idle()
