@@ -19,7 +19,7 @@ S4L bot lets you save links (articles, videos, books, etc.), categorize them and
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://github.com/iugov/s4lbot/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details and the process for submitting pull requests to us.
 
 ## Versioning
 
