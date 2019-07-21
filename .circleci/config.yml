@@ -18,7 +18,7 @@ jobs:
           command: |
             mkdir test-results
             mkdir test-reports
-            pipenv run flake8 --exclude=.venv* --statistics
+            pipenv run flake8 --exclude=.venv* --ignore=E501 --statistics
             pipenv run pytest -v
       - store_test_results:
           path: test-results
