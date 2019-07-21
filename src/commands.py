@@ -1,7 +1,22 @@
-from utils import text_processing
+# -*- coding: utf-8 -*-
+from utils.text_processing import extract_urls, fetch_text
+from pathlib import Path
+from settings import DEVELOPERS
 import telegram
 import requests
 import re
+
+
+def authorize_developer(func):
+    def command(bot, update):
+        if update.message.from_user.username not in DEVELOPERS:
+            bot.send_message(
+                chat_id=update.message.chat_id,
+                text=fetch_text(Path("src/assets/text/no_access.txt")),
+            )
+            return
+
+    return command
 
 
 def get_url():
@@ -32,14 +47,17 @@ def send_content(bot, chat_id, content):
         bot.send_animation(chat_id=chat_id, animation=url)
 
 
+@authorize_developer
 def info(bot, update):
     bot.send_message(
         chat_id=update.message.chat_id,
-        text="S4L bot is under development.\n\nAuthor: @antoniugov",
+        text=fetch_text(Path("src/assets/text/credits.txt")),
     )
 
 
+@authorize_developer
 def start(bot, update):
+
     kb = [
         [telegram.InlineKeyboardButton("NEXT DOGGO"), telegram.KeyboardButton("INFO")]
     ]
@@ -47,26 +65,29 @@ def start(bot, update):
 
     bot.send_message(
         chat_id=update.message.chat_id,
-        text="Hi! This bot is currently under development.\n\nMeanwhile, enjoy an endless supply of these magnificent creatures.",
+        text=fetch_text(Path("src/assets/text/start.txt")),
         reply_markup=kb_markup,
     )
     bot.send_photo(chat_id=update.message.chat_id, photo=get_url())
 
 
+@authorize_developer
 def unknown(bot, update):
     bot.send_message(
         chat_id=update.message.chat_id, text="Hmm... I don't know that one."
     )
 
 
+@authorize_developer
 def next_dog(bot, update):
     url = get_url()
     chat_id = update.message.chat_id
     send_content(bot=bot, chat_id=chat_id, content=url)
 
 
+@authorize_developer
 def echo_urls(bot, update):
-    urls = text_processing.extract_urls(update.message.text)
+    urls = extract_urls(update.message.text)
     if urls:
         bot.send_message(
             chat_id=update.message.chat_id,
