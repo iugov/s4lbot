@@ -9,12 +9,13 @@ import re
 
 def authorize_developer(func):
     def command(bot, update):
-        if update.message.from_user.username not in DEVELOPERS:
+        if update.message.from_user.username in DEVELOPERS:
+            func(bot, update)
+        else:
             bot.send_message(
                 chat_id=update.message.chat_id,
                 text=fetch_text(Path("src/assets/text/no_access.txt")),
             )
-            return
 
     return command
 
