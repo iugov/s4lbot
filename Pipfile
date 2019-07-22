@@ -7,14 +7,13 @@ verify_ssl = true
 black = "*"
 pytest = "*"
 pytest-cov = "*"
-python-dotenv = "*"
 flake8 = "*"
 pre-commit = "*"
 
 [packages]
+python-dotenv = "*"
 python-telegram-bot = "*"
 requests = "*"
-urlextract = "*"
 psycopg2-binary = "*"
 
 [requires]
