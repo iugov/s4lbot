@@ -26,13 +26,6 @@ def developers_only(func):
     return command
 
 
-def info(update: Update, context: CallbackContext):
-    context.bot.send_message(
-        chat_id=update.message.chat_id,
-        text=fetch_text(Path("src/assets/text/credits.txt")),
-    )
-
-
 @developers_only
 def start(update: Update, context: CallbackContext):
 
@@ -68,6 +61,13 @@ def start(update: Update, context: CallbackContext):
     )
 
     next_dog(update, context)
+
+
+def info(update: Update, context: CallbackContext):
+    context.bot.send_message(
+        chat_id=update.message.chat_id,
+        text=fetch_text(Path("src/assets/text/credits.txt")),
+    )
 
 
 def unknown(update: Update, context: CallbackContext):
