@@ -8,7 +8,7 @@ import telegram
 
 from settings import DEVELOPERS
 from utils import db
-from utils.text_processing import fetch_text
+from utils.text_processing import from_file
 from telegram import Update
 from telegram.ext import CallbackContext
 
@@ -20,7 +20,7 @@ def developers_only(func):
         else:
             context.bot.send_message(
                 chat_id=update.message.chat_id,
-                text=fetch_text(Path("src/assets/text/no_access.txt")),
+                text=from_file(Path("src/assets/text/no_access.txt")),
             )
 
     return command
@@ -56,7 +56,7 @@ def start(update: Update, context: CallbackContext):
 
     context.bot.send_message(
         chat_id=update.message.chat_id,
-        text=fetch_text(Path("src/assets/text/start.txt")),
+        text=from_file(Path("src/assets/text/start.txt")),
         reply_markup=kb_markup,
     )
 
@@ -66,14 +66,14 @@ def start(update: Update, context: CallbackContext):
 def info(update: Update, context: CallbackContext):
     context.bot.send_message(
         chat_id=update.message.chat_id,
-        text=fetch_text(Path("src/assets/text/credits.txt")),
+        text=from_file(Path("src/assets/text/credits.txt")),
     )
 
 
 def unknown(update: Update, context: CallbackContext):
     context.bot.send_message(
         chat_id=update.message.chat_id,
-        text=fetch_text(Path("src/assets/text/unknown.txt")),
+        text=from_file(Path("src/assets/text/unknown.txt")),
     )
 
 
