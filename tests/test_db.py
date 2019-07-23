@@ -1,25 +1,18 @@
 # -*- coding: utf-8 -*-
+import logging
 import sys
 import unittest
-import logging
-from telegram import User
 
 sys.path.append("src")
 
-from functools import wraps
+from telegram import User
+
+from common import log
 from settings import DB, DEVELOPERS
 from utils import db
 
-logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 
-
-def log(func):
-    @wraps(func)
-    def with_logging(*args, **kwargs):
-        logging.info(f"Testing {func.__name__} ...")
-        return func(*args, **kwargs)
-
-    return with_logging
+# logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 
 
 class TestDatabase(unittest.TestCase):
@@ -41,8 +34,8 @@ class TestDatabase(unittest.TestCase):
                 "target_session_attrs": "any",
             },
         )
-        connection.close()
-        logging.debug("DB connection -")
+        logging.info("Connection succesful.")
+        db.close(connection)
 
     @log
     def test_lookup_user(self):
@@ -74,11 +67,16 @@ class TestDatabase(unittest.TestCase):
 
     @log
     def test_update_user(self):
+
+        initial_first_name = "Alpha"
+        initial_last_name = "Beta"
+        initial_username = "0sAD78sda9sA9K"
+
         user = User(
             id=123456789,
-            first_name="Alpha",
-            last_name="Beta",
-            username="s4lbot_test",
+            first_name=initial_first_name,
+            last_name=initial_last_name,
+            username=initial_username,
             is_bot=False,
         )
 
@@ -86,14 +84,26 @@ class TestDatabase(unittest.TestCase):
 
         user.first_name = "Centauri"
         user.last_name = "Domini"
-        user.username = "Ester"
+        user.username = "7s7gh2LJs7As11"
+
+        logging.info(
+            f'User {user.id} changed their first name from "{initial_first_name}" to "{user.first_name}".'
+        )
+        logging.info(
+            f'User {user.id} changed their last name from "{initial_last_name}" to "{user.last_name}".'
+        )
+        logging.info(
+            f'User {user.id} changed their username from "{initial_username}" to "{user.username}".'
+        )
 
         db.update_user(user)
 
         result = db.lookup_user(user)
-        self.assertEqual(result["fname"], "Centauri")
-        self.assertEqual(result["lname"], "Domini")
-        self.assertEqual(result["username"], "Ester")
+        self.assertEqual(result["fname"], user.first_name)
+        self.assertEqual(result["lname"], user.last_name)
+        self.assertEqual(result["username"], user.username)
+
+        logging.info("Credentials match.")
 
         db.delete_user(user)
 
