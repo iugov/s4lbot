@@ -18,8 +18,10 @@ jobs:
           command: |
             mkdir test-results
             mkdir test-reports
-            pipenv run flake8 --exclude=.venv* --ignore=E501 --statistics
-            pipenv run pytest -v
+            pipenv run flake8 --ignore=E501,E402 --statistics
+            pipenv run pytest --cov tests/
+            pipenv run coverage xml
+            pipenv run python-codacy-coverage -r coverage.xml
       - store_test_results:
           path: test-results
       - store_artifacts:
