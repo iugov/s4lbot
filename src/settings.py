@@ -15,7 +15,8 @@ DB = {
     "host": os.getenv("DB_HOST"),
     "port": os.getenv("DB_PORT"),
     "name": os.getenv("DB_NAME"),
+    "krbsrvname": os.getenv("DB_KRBSRVNAME"),
 }
 
-# List of developers' telegram handles.
+# List of developers' telegram ids.
 DEVELOPERS = [334425818, 266888211]
