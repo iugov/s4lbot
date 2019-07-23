@@ -9,6 +9,7 @@ pytest = "*"
 pytest-cov = "*"
 flake8 = "*"
 pre-commit = "*"
+codacy-coverage = "*"
 
 [packages]
 python-dotenv = "*"
