@@ -38,13 +38,13 @@ def start(update: Update, context: CallbackContext):
         msg += f'\n\nYour unique telegram id is: {record["tid"]}'
         msg += f'\n\nYour username is: {record["username"]}'
         msg += f'\n\nYou last used /start command at: {record["created"].strftime("%b %d %Y, %H:%M:%S")}'
-        db.update_user(update)
+        db.update_user(user)
     else:
         context.bot.send_message(
             chat_id=update.message.chat_id,
             text=f"Hi, {user.first_name}!\n\nYou are new.\n\nAdding to database...",
         )
-        db.add_user(update)
+        db.add_user(user)
         msg = f"Done! Enjoy your stay.\n\nTo view your data, invoke /start ;)"
 
     context.bot.send_message(chat_id=update.message.chat_id, text=msg)
