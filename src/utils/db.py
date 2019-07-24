@@ -72,7 +72,7 @@ def add_user(user: User):
     cursor.execute(
         """
         INSERT INTO users (tid, fname, lname, username, created)
-	    VALUES (%(tid)s, %(fname)s, %(lname)s, %(username)s, %(created)s);
+        VALUES (%(tid)s, %(fname)s, %(lname)s, %(username)s, %(created)s);
         """,
         {
             "tid": user.id,
