@@ -71,13 +71,8 @@ def add_user(user: User):
 
     cursor.execute(
         """
-        WITH new_tid as (
-            INSERT INTO users (tid, fname, lname, username, created)
-            VALUES (%(tid)s, %(fname)s, %(lname)s, %(username)s, %(created)s)
-            returning tid
-        )
-        INSERT INTO userdata (tid)
-        VALUES ((SELECT tid FROM new_tid));
+        INSERT INTO users (tid, fname, lname, username, created)
+	    VALUES (%(tid)s, %(fname)s, %(lname)s, %(username)s, %(created)s);
         """,
         {
             "tid": user.id,
