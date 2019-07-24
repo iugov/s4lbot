@@ -20,8 +20,14 @@ def connect():
         port=DB["port"],
         database=DB["name"],
     )
-    logging.debug("DB connection +")
+    logging.debug(f"DB pid-{connection.get_backend_pid()} [ OPEN ]")
     return connection
+
+
+def close(connection):
+    pid = connection.get_backend_pid()
+    connection.close()
+    logging.debug(f"DB pid-{pid} [CLOSED]")
 
 
 # TODO: Make this more elegant.
@@ -45,8 +51,8 @@ def lookup_user(user):
         logging.info(f"User not found.")
 
     cursor.close()
-    connection.close()
-    logging.debug("DB connection +")
+    close(connection)
+
     return results
 
 
@@ -54,12 +60,13 @@ def add_user(user: User):
     connection = connect()
     cursor = connection.cursor()
 
+    logging.info(f"Adding user {user.id} to the database...")
+
     # FIXME: This can be simplified.
     if lookup_user(user):
-        logging.warning(f"User {user.id} already exists. Skipping.")
+        logging.warning(f"User {user.id} already exists. Returning.")
         cursor.close()
-        connection.close()
-        logging.debug("DB connection +")
+        close(connection)
         return
 
     cursor.execute(
@@ -83,13 +90,15 @@ def add_user(user: User):
     connection.commit()
     logging.info(f"User {user.id} has been added to the database.")
     cursor.close()
-    connection.close()
-    logging.debug("DB connection +")
+    close(connection)
 
 
 def update_user(user: User):
     connection = connect()
     cursor = connection.cursor()
+
+    logging.info(f"Updating user {user.id}...")
+
     cursor.execute(
         """
         UPDATE users SET fname = %(fname)s, lname = %(lname)s, username = %(username)s, created = %(created)s
@@ -106,16 +115,17 @@ def update_user(user: User):
     connection.commit()
     logging.info(f"User {user.id} info has been updated.")
     cursor.close()
-    connection.close()
-    logging.debug("DB connection +")
+    close(connection)
 
 
 def delete_user(user: User):
     connection = connect()
     cursor = connection.cursor()
+
+    logging.info(f"Deleting user {user.id}...")
+
     cursor.execute("DELETE FROM users WHERE tid = %s;", (user.id,))
     connection.commit()
     logging.info(f"User {user.id} has been deleted from the database.")
     cursor.close()
-    connection.close()
-    logging.debug("DB connection +")
+    close(connection)
