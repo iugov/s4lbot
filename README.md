@@ -30,3 +30,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 * **Anton Iugov** - *Core developer, project maintenance* - [iugov](https://github.com/iugov)
 * **Kamil Fazilov** - *Core developer, database management* - [AnotherProksy](https://github.com/AnotherProksY)
+
+## Acknowledgements
+
+* [Issue and Pull request templates](https://github.com/stevemao/github-issue-templates) - [Steve Mao](https://github.com/stevemao)
