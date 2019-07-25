@@ -29,7 +29,7 @@ def developers_only(func):
 @developers_only
 def start(update: Update, context: CallbackContext):
 
-    # TODO: Clean this shit up and make separate functions and modules.
+    # TODO: Remove the test code.
     user = update.message.from_user
     record = db.lookup_user(user.id)
 
