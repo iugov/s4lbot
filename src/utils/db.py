@@ -38,6 +38,7 @@ def lookup_user(user):
         tid = user
 
     connection = connect()
+    # TODO: Consider using psycopg2.extras.NamedTupleCursor instead.
     cursor = connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
     logging.info(f"Looking for user {tid} ...")
