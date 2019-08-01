@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
-import re
 from pathlib import Path
 
-import requests
 import telegram
 import keyboards
 
@@ -29,26 +27,13 @@ def developers_only(func):
 
 @developers_only
 def start(update: Update, context: CallbackContext):
-
-    # TODO: Remove the test code.
     user = update.message.from_user
-    record = db.lookup_user(user.id)
 
-    if record:
-        msg = f"Yay! You are already in the database, {user.first_name}."
-        msg += f'\n\nYour unique telegram id is: {record["tid"]}'
-        msg += f'\n\nYour username is: {record["username"]}'
-        msg += f'\n\nYou last used /start command at: {record["created"].strftime("%b %d %Y, %H:%M:%S")}'
+    if db.lookup_user(user.id):
         db.update_user(user)
     else:
-        context.bot.send_message(
-            chat_id=update.message.chat_id,
-            text=f"Hi, {user.first_name}!\n\nYou are new.\n\nAdding to database...",
-        )
         db.add_user(user)
-        msg = f"Done! Enjoy your stay.\n\nTo view your data, invoke /start ;)"
 
-    context.bot.send_message(chat_id=update.message.chat_id, text=msg)
     kb_markup = telegram.ReplyKeyboardMarkup(keyboards.HOME, resize_keyboard=True)
 
     context.bot.send_message(
@@ -56,8 +41,6 @@ def start(update: Update, context: CallbackContext):
         text=from_file(Path("src/assets/text/start.txt")),
         reply_markup=kb_markup,
     )
-
-    next_dog(update, context)
 
 
 def info(update: Update, context: CallbackContext):
@@ -138,27 +121,3 @@ def get_links(update: Update, context: CallbackContext):
         text=f"Here are your links.",
         reply_markup=reply_markup,
     )
-
-
-def next_dog(update: Update, context: CallbackContext):
-    chat_id = update.message.chat_id
-
-    image_extensions = ["jpg", "jpeg", "png"]
-    video_extensions = ["mp4", "mov", "webm"]
-    animation_extensions = ["gif"]
-
-    allowed_extensions = image_extensions + video_extensions + animation_extensions
-
-    file_extension = ""
-    while file_extension not in allowed_extensions:
-        url = requests.get("https://random.dog/woof.json").json()["url"]
-        file_extension = re.search("([^.]*)$", url).group(1).lower()
-
-    if file_extension in image_extensions:
-        context.bot.send_photo(chat_id=chat_id, photo=url)
-
-    if file_extension in video_extensions:
-        context.bot.send_video(chat_id=chat_id, video=url)
-
-    if file_extension in animation_extensions:
-        context.bot.send_animation(chat_id=chat_id, animation=url)
