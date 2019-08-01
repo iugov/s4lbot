@@ -125,3 +125,69 @@ def delete_user(user: User):
     logging.info(f"User {user.id} has been deleted from the database.")
     cursor.close()
     close(connection)
+
+
+def add_links(links, user: User):
+    if not lookup_user(user):
+        logging.error(f"User {user.id} does not exist. Exiting.")
+        return
+
+    connection = connect()
+    cursor = connection.cursor()
+
+    logging.info(f"Adding '{', '.join(links)}' to the database...")
+
+    data = [(user.id, link) for link in links]
+
+    insert_query = "INSERT INTO userdata (tid, url) VALUES %s"
+
+    psycopg2.extras.execute_values(
+        cursor, insert_query, data, template=None, page_size=50
+    )
+
+    connection.commit()
+    logging.info(
+        f"Links '{', '.join(links)}' has been added to the database for User {user.id}."
+    )
+    cursor.close()
+    close(connection)
+
+
+def get_links(user: User):
+    if not lookup_user(user):
+        logging.warning(f"User {user.id} does not exist. Exiting.")
+        return
+
+    connection = connect()
+    cursor = connection.cursor()
+
+    logging.info(f"Retrieving links for user {user.id} ...")
+
+    cursor.execute("SELECT * FROM userdata WHERE tid = %s;", (user.id,))
+
+    results = cursor.fetchall()
+
+    logging.info(f"Links retrieved from user {user.id}.")
+    cursor.close()
+    close(connection)
+
+    return [record[2] for record in results]  # Return only urls.
+
+
+def delete_link(link, user: User):
+    if not lookup_user(user):
+        logging.warning(f"User {user.id} does not exist. Exiting.")
+        return
+
+    connection = connect()
+    cursor = connection.cursor()
+
+    logging.info(f"Deleting link {link}...")
+
+    cursor.execute(
+        "DELETE FROM userdata WHERE url = %s AND tid = %s;", (link.casefold(), user.id)
+    )
+    connection.commit()
+    logging.info(f"User {user.id} has been deleted from the database.")
+    cursor.close()
+    close(connection)

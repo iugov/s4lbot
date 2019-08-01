@@ -2,6 +2,7 @@
 import commands
 import logging
 
+from telegram import MessageEntity
 from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
 
 from settings import API_TOKEN
@@ -19,14 +20,23 @@ def main():
 
     dp.add_handler(
         MessageHandler(
-            Filters.text & (Filters.entity("url") | Filters.entity("text_link")),
-            commands.find_links,
+            Filters.text
+            & (
+                Filters.entity(MessageEntity.URL)
+                | Filters.entity(MessageEntity.TEXT_LINK)
+            ),
+            commands.add_links,
         )
     )
-    dp.add_handler(MessageHandler(Filters.regex("NEXT DOGGO"), commands.next_dog))
-    dp.add_handler(MessageHandler(Filters.regex("INFO"), commands.info))
+
+    dp.add_handler(MessageHandler(Filters.regex("View all"), commands.get_links))
+    dp.add_handler(MessageHandler(Filters.regex("Add"), commands.not_implemented))
+    dp.add_handler(MessageHandler(Filters.regex("Delete"), commands.not_implemented))
+    dp.add_handler(MessageHandler(Filters.regex("Help"), commands.info))
     dp.add_handler(MessageHandler(Filters.command, commands.unknown))
     dp.add_handler(MessageHandler(~Filters.command, commands.unknown))
+
+    dp.add_error_handler(commands.error)
 
     updater.start_polling()
     updater.idle()
