@@ -15,7 +15,7 @@ from telegram.ext import CallbackContext
 def developers_only(func):
     def command(update: Update, context: CallbackContext):
         if update.message.from_user.id in DEVELOPERS:
-            func(update, context)
+            return func(update, context)
         else:
             context.bot.send_message(
                 chat_id=update.message.chat_id,
