@@ -17,7 +17,6 @@ def main():
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler("start", commands.start))
-
     dp.add_handler(
         MessageHandler(
             Filters.text
@@ -28,11 +27,10 @@ def main():
             commands.add_links,
         )
     )
-
     dp.add_handler(MessageHandler(Filters.regex("View all"), commands.get_links))
     dp.add_handler(MessageHandler(Filters.regex("Add"), commands.not_implemented))
     dp.add_handler(MessageHandler(Filters.regex("Delete"), commands.not_implemented))
-    dp.add_handler(MessageHandler(Filters.regex("Help"), commands.info))
+    dp.add_handler(MessageHandler(Filters.regex("Help"), commands.help))
     dp.add_handler(MessageHandler(Filters.command, commands.unknown))
     dp.add_handler(MessageHandler(~Filters.command, commands.unknown))
 

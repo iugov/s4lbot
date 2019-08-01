@@ -43,7 +43,7 @@ def start(update: Update, context: CallbackContext):
     )
 
 
-def info(update: Update, context: CallbackContext):
+def help(update: Update, context: CallbackContext):
     context.bot.send_message(
         chat_id=update.message.chat_id,
         text=from_file(Path("src/assets/text/credits.txt")),
@@ -66,14 +66,14 @@ def unknown(update: Update, context: CallbackContext):
     )
 
 
-def not_implemented(update, context):
+def not_implemented(update: Update, context: CallbackContext):
     context.bot.send_message(
         chat_id=update.message.chat_id,
         text=from_file(Path("src/assets/text/not_implemented.txt")),
     )
 
 
-def error(update, context):
+def error(update: Update, context: CallbackContext):
     """Log Errors caused by Updates."""
     logging.warning('Update "%s" caused error "%s"', update, context.error)
 
