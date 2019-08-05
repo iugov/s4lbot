@@ -18,7 +18,7 @@ jobs:
           command: |
             mkdir test-results
             mkdir test-reports
-            pipenv run flake8 --exclude=.venv/ --ignore=E501,E402 --statistics
+            pipenv run flake8 --exclude=.venv/ --ignore=E203,E402,E501,W293,W503 --statistics
             pipenv run pytest --cov tests/
             pipenv run coverage xml
             pipenv run python-codacy-coverage -r coverage.xml
