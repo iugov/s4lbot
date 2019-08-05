@@ -7,59 +7,64 @@ sys.path.append("src")
 
 from telegram import User
 from settings import DB, DEVELOPERS
-from common import log
+from common import log, get_random_tid
 from utils import db
 
 
 class TestDatabase(unittest.TestCase):
     @log
     def test_connect(self):
-        connection = db.connect()
-        self.assertEqual(
-            connection.get_dsn_parameters(),
-            {
-                "user": DB["user"],
-                "dbname": DB["name"],
-                "host": DB["host"],
-                "port": DB["port"],
-                "tty": "",
-                "options": "",
-                "sslmode": "prefer",
-                "sslcompression": "0",
-                "krbsrvname": DB["krbsrvname"],
-                "target_session_attrs": "any",
-            },
-        )
+        with db.connect() as connection:
+            self.assertEqual(
+                connection.get_dsn_parameters(),
+                {
+                    "user": DB["user"],
+                    "dbname": DB["name"],
+                    "host": DB["host"],
+                    "port": DB["port"],
+                    "tty": "",
+                    "options": "",
+                    "sslmode": "prefer",
+                    "sslcompression": "0",
+                    "krbsrvname": DB["krbsrvname"],
+                    "target_session_attrs": "any",
+                },
+            )
         logging.info("Connection succesful.")
-        db.close(connection)
 
     @log
     def test_lookup_user(self):
-        for tid in DEVELOPERS:
-            result = db.lookup_user(tid)
-            self.assertEqual(result["tid"], tid)
+        with db.connect() as connection:
+            self.assertEqual(
+                db.lookup_user(connection, DEVELOPERS[0])["tid"], DEVELOPERS[0]
+            )
+            self.assertEqual(
+                db.lookup_user(connection, DEVELOPERS[1])["tid"], DEVELOPERS[1]
+            )
+            self.assertFalse(db.lookup_user(connection, get_random_tid(connection)))
+            self.assertFalse(db.lookup_user(connection, get_random_tid(connection)))
 
     @log
     def test_add_user(self):
-        user = User(
-            id=123456789,
-            first_name="Alpha",
-            last_name="Beta",
-            username="s4lbot_test",
-            is_bot=False,
-        )
-        db.add_user(user)
+        with db.connect() as connection:
+            user = User(
+                id=get_random_tid(connection),
+                first_name="Alpha",
+                last_name="Beta",
+                username="s4lbot_test",
+                is_bot=False,
+            )
 
-        result = db.lookup_user(user.id)
+            db.add_user(connection, user)
 
-        self.assertTrue(result)
-        self.assertEqual(result["tid"], user.id)
-        self.assertEqual(result["fname"], user.first_name)
-        self.assertEqual(result["lname"], user.last_name)
-        self.assertEqual(result["username"], user.username)
-        # TODO: Add 'created' field check.
+            result = db.lookup_user(connection, user.id)
+            self.assertTrue(result)
+            self.assertEqual(result["tid"], user.id)
+            self.assertEqual(result["fname"], user.first_name)
+            self.assertEqual(result["lname"], user.last_name)
+            self.assertEqual(result["username"], user.username)
 
-        db.delete_user(user)
+            db.delete_user(connection, user)
 
     @log
     def test_update_user(self):
@@ -68,15 +73,16 @@ class TestDatabase(unittest.TestCase):
         initial_last_name = "Beta"
         initial_username = "0sAD78sda9sA9K"
 
-        user = User(
-            id=123456789,
-            first_name=initial_first_name,
-            last_name=initial_last_name,
-            username=initial_username,
-            is_bot=False,
-        )
+        with db.connect() as connection:
+            user = User(
+                id=get_random_tid(connection),
+                first_name=initial_first_name,
+                last_name=initial_last_name,
+                username=initial_username,
+                is_bot=False,
+            )
 
-        db.add_user(user)
+            db.add_user(connection, user)
 
         user.first_name = "Centauri"
         user.last_name = "Domini"
@@ -92,34 +98,36 @@ class TestDatabase(unittest.TestCase):
             f'User {user.id} changed their username from "{initial_username}" to "{user.username}".'
         )
 
-        db.update_user(user)
+        with db.connect() as connection:
+            db.update_user(connection, user)
 
-        result = db.lookup_user(user)
-        self.assertEqual(result["fname"], user.first_name)
-        self.assertEqual(result["lname"], user.last_name)
-        self.assertEqual(result["username"], user.username)
+            result = db.lookup_user(connection, user)
+            self.assertEqual(result["fname"], user.first_name)
+            self.assertEqual(result["lname"], user.last_name)
+            self.assertEqual(result["username"], user.username)
 
-        logging.info("Credentials match.")
-
-        db.delete_user(user)
+            db.delete_user(connection, user)
 
     @log
     def test_delete_user(self):
-        user = User(
-            id=123456789,
-            first_name="Alpha",
-            last_name="Beta",
-            username="s4lbot_test",
-            is_bot=False,
-        )
-        db.add_user(user)
-        result = db.lookup_user(user)
-        self.assertTrue(result)
-        self.assertEqual(user.id, result["tid"])
+        with db.connect() as connection:
+            user = User(
+                id=get_random_tid(connection),
+                first_name="Alpha",
+                last_name="Beta",
+                username="s4lbot_test",
+                is_bot=False,
+            )
 
-        db.delete_user(user)
-        result = db.lookup_user(user)
-        self.assertFalse(result)
+            db.add_user(connection, user)
+
+            result = db.lookup_user(connection, user)
+            self.assertTrue(result)
+            self.assertEqual(user.id, result["tid"])
+
+            db.delete_user(connection, user)
+            result = db.lookup_user(connection, user)
+            self.assertFalse(result)
 
 
 if __name__ == "__main__":

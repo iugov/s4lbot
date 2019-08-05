@@ -43,10 +43,11 @@ def send_typing_action(func):
 def start(update: Update, context: CallbackContext):
     user = update.message.from_user
 
-    if db.lookup_user(user.id):
-        db.update_user(user)
-    else:
-        db.add_user(user)
+    with db.connect() as connection:
+        if db.lookup_user(connection, user.id):
+            db.update_user(connection, user)
+        else:
+            db.add_user(connection, user)
 
     context.bot.send_photo(
         chat_id=update.message.chat_id,
@@ -104,27 +105,28 @@ def add_links(update: Update, context: CallbackContext):
     if urls:
         logging.info(f"Got content of type url, text_link: {urls}")
 
-        distinct_links = set([url.casefold() for url in urls]) - set(
-            db.get_links(update.message.from_user)
-        )
-        if distinct_links:
-            context.bot.send_message(
-                chat_id=update.message.chat_id,
-                text=f"⏳ Saving your link{'s' if len(distinct_links) > 1 else ''}... ⏳",
-                disable_notification=True,
+        with db.connect() as connection:
+            distinct_links = set([url.casefold() for url in urls]) - set(
+                db.get_links(connection, update.message.from_user)
             )
-            db.add_links(distinct_links, update.message.from_user)
-            context.bot.send_message(
-                chat_id=update.message.chat_id,
-                text=f"✨ {len(distinct_links)} link{'s' if len(distinct_links) > 1 else ''} saved ✨",
-                disable_notification=True,
-            )
-        else:
-            context.bot.send_message(
-                chat_id=update.message.chat_id,
-                text=f"You already have that link saved! Look it up with *View all* or */all*",
-                parse_mode=telegram.ParseMode.MARKDOWN,
-            )
+            if distinct_links:
+                context.bot.send_message(
+                    chat_id=update.message.chat_id,
+                    text=f"⏳ Saving your link{'s' if len(distinct_links) > 1 else ''}... ⏳",
+                    disable_notification=True,
+                )
+                db.add_links(connection, distinct_links, update.message.from_user)
+                context.bot.send_message(
+                    chat_id=update.message.chat_id,
+                    text=f"✨ {len(distinct_links)} link{'s' if len(distinct_links) > 1 else ''} saved ✨",
+                    disable_notification=True,
+                )
+            else:
+                context.bot.send_message(
+                    chat_id=update.message.chat_id,
+                    text=f"You already have that link saved! Look it up with *View all* or */all*",
+                    parse_mode=telegram.ParseMode.MARKDOWN,
+                )
 
 
 @send_typing_action
@@ -137,7 +139,8 @@ def get_links(update: Update, context: CallbackContext):
             menu.append([footer_buttons])
         return menu
 
-    links = db.get_links(update.message.from_user)
+    with db.connect() as connection:
+        links = db.get_links(connection, update.message.from_user)
 
     if not links:
         context.bot.send_message(

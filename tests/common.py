@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 from functools import wraps
 import logging
+import random
+import sys
+
+sys.path.append("src")
+
+from utils import db
 
 
 def log(func):
@@ -12,3 +18,12 @@ def log(func):
         return result
 
     return wrapper
+
+
+def get_random_tid(connection):
+    user_ids = [record["tid"] for record in db.get_users(connection)]
+    while True:
+        tid = random.randint(100000000, 999999999)
+        if tid not in user_ids:
+            logging.info(f"Generated tid: {tid}")
+            return tid
