@@ -72,15 +72,15 @@ def add_user(user: User):
 
     cursor.execute(
         """
-        INSERT INTO users (tid, fname, lname, username, created)
-        VALUES (%(tid)s, %(fname)s, %(lname)s, %(username)s, %(created)s);
+        INSERT INTO users (tid, fname, lname, username, last_active)
+        VALUES (%(tid)s, %(fname)s, %(lname)s, %(username)s, %(last_active)s);
         """,
         {
             "tid": user.id,
             "fname": user.first_name,
             "lname": user.last_name,
             "username": user.username,
-            "created": datetime.now(timezone.utc),
+            "last_active": datetime.now(timezone.utc),
         },
     )
     connection.commit()
@@ -97,7 +97,7 @@ def update_user(user: User):
 
     cursor.execute(
         """
-        UPDATE users SET fname = %(fname)s, lname = %(lname)s, username = %(username)s, created = %(created)s
+        UPDATE users SET fname = %(fname)s, lname = %(lname)s, username = %(username)s, last_active = %(last_active)s
         WHERE tid=%(tid)s;
         """,
         {
@@ -105,7 +105,7 @@ def update_user(user: User):
             "fname": user.first_name,
             "lname": user.last_name,
             "username": user.username,
-            "created": datetime.now(timezone.utc),
+            "last_active": datetime.now(timezone.utc),
         },
     )
     connection.commit()

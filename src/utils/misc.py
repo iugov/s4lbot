@@ -5,10 +5,10 @@ import bs4
 
 
 PROMPTS = {
-    "start": open(Path("src/assets/text/start.md"), "r").read(),
+    "welcome": open(Path("src/assets/text/welcome.md"), "r").read(),
+    "alpha": open(Path("src/assets/text/alpha.md"), "r").read(),
     "help": open(Path("src/assets/text/help.md"), "r").read(),
     "no_access": open(Path("src/assets/text/no_access.md"), "r").read(),
-    "img_cover": open(Path("images/cover.jpg"), "rb"),
 }
 
 

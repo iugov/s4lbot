@@ -40,7 +40,6 @@ def send_typing_action(func):
     return wrapped
 
 
-@restricted
 def start(update: Update, context: CallbackContext):
     user = update.message.from_user
 
@@ -49,12 +48,21 @@ def start(update: Update, context: CallbackContext):
     else:
         db.add_user(user)
 
-    context.bot.send_photo(chat_id=update.message.chat_id, photo=PROMPTS["img_cover"])
+    context.bot.send_photo(
+        chat_id=update.message.chat_id,
+        photo="https://github.com/iugov/s4lbot/blob/develop/images/cover.jpg?raw=true",
+    )
 
     context.bot.send_message(
         chat_id=update.message.chat_id,
-        text=PROMPTS["start"],
+        text=PROMPTS["welcome"],
         reply_markup=keyboards.home(),
+        parse_mode=telegram.ParseMode.MARKDOWN,
+    )
+
+    context.bot.send_message(
+        chat_id=update.message.chat_id,
+        text=PROMPTS["alpha"],
         parse_mode=telegram.ParseMode.MARKDOWN,
     )
 
@@ -62,7 +70,7 @@ def start(update: Update, context: CallbackContext):
 def help(update: Update, context: CallbackContext):
     context.bot.send_message(
         chat_id=update.message.chat_id,
-        text=PROMPTS["help"].format(all="/all".center(6), help="/help".center(7)),
+        text=PROMPTS["help"],
         reply_markup=telegram.InlineKeyboardMarkup(
             [
                 [
@@ -108,13 +116,14 @@ def add_links(update: Update, context: CallbackContext):
             db.add_links(distinct_links, update.message.from_user)
             context.bot.send_message(
                 chat_id=update.message.chat_id,
-                text=f"✨ {len(distinct_links)} link{'s' if len(distinct_links) > 1 else ''} saved. ✨",
+                text=f"✨ {len(distinct_links)} link{'s' if len(distinct_links) > 1 else ''} saved ✨",
                 disable_notification=True,
             )
         else:
             context.bot.send_message(
                 chat_id=update.message.chat_id,
-                text=f"You already have that link saved! You can find it with 'View all'.",
+                text=f"You already have that link saved! Look it up with *View all* or */all*",
+                parse_mode=telegram.ParseMode.MARKDOWN,
             )
 
 
@@ -132,8 +141,7 @@ def get_links(update: Update, context: CallbackContext):
 
     if not links:
         context.bot.send_message(
-            chat_id=update.message.chat_id,
-            text="You don't have any saved links. To save one, simply type/forward it here!",
+            chat_id=update.message.chat_id, text="There are no saved links."
         )
         return False
 
@@ -143,7 +151,5 @@ def get_links(update: Update, context: CallbackContext):
 
     reply_markup = telegram.InlineKeyboardMarkup(build_menu(button_list, n_cols=1))
     context.bot.send_message(
-        chat_id=update.message.chat_id,
-        text=f"Here are your links.",
-        reply_markup=reply_markup,
+        chat_id=update.message.chat_id, text=f"Here you go", reply_markup=reply_markup
     )
