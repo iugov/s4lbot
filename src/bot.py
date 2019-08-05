@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import commands
+import callbacks
 import logging
 
 from telegram import MessageEntity
@@ -16,7 +16,7 @@ def main():
     updater = Updater(API_TOKEN, use_context=True)
     dp = updater.dispatcher
 
-    dp.add_handler(CommandHandler("start", commands.start))
+    dp.add_handler(CommandHandler("start", callbacks.start))
     dp.add_handler(
         MessageHandler(
             Filters.text
@@ -24,17 +24,18 @@ def main():
                 Filters.entity(MessageEntity.URL)
                 | Filters.entity(MessageEntity.TEXT_LINK)
             ),
-            commands.add_links,
+            callbacks.add_links,
         )
     )
-    dp.add_handler(MessageHandler(Filters.regex("View all"), commands.get_links))
-    dp.add_handler(MessageHandler(Filters.regex("Add"), commands.not_implemented))
-    dp.add_handler(MessageHandler(Filters.regex("Delete"), commands.not_implemented))
-    dp.add_handler(MessageHandler(Filters.regex("Help"), commands.help))
-    dp.add_handler(MessageHandler(Filters.command, commands.unknown))
-    dp.add_handler(MessageHandler(~Filters.command, commands.unknown))
+    dp.add_handler(MessageHandler(Filters.regex("View all"), callbacks.get_links))
+    dp.add_handler(CommandHandler("all", callbacks.get_links))
 
-    dp.add_error_handler(commands.error)
+    dp.add_handler(MessageHandler(Filters.regex("Help"), callbacks.help))
+    dp.add_handler(CommandHandler("help", callbacks.help))
+
+    dp.add_handler(MessageHandler(Filters.command, callbacks.unknown))
+
+    dp.add_error_handler(callbacks.error)
 
     updater.start_polling()
     updater.idle()

@@ -6,13 +6,9 @@ import unittest
 sys.path.append("src")
 
 from telegram import User
-
-from common import log
 from settings import DB, DEVELOPERS
+from common import log
 from utils import db
-
-
-# logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 
 
 class TestDatabase(unittest.TestCase):

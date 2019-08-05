@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
-import logging
-import sys
 from functools import wraps
-
-logging.basicConfig(stream=sys.stderr, level=logging.INFO)
+import logging
 
 
 def log(func):
