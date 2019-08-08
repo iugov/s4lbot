@@ -127,16 +127,17 @@ def get_links(connection, user: User):
     return results
 
 
-def delete_link(connection, link, user: User):
+def get_link(connection, link_id):
     with connection.cursor(cursor_factory=psycopg2.extras.NamedTupleCursor) as cursor:
-        if not lookup_user(connection, user):
-            logging.warning(f"User {user.id} does not exist. Exiting.")
-            return
+        cursor.execute("SELECT * FROM urls WHERE id = %s;", (link_id,))
+        result = cursor.fetchone()
 
-        logging.info(f"Deleting link {link}...")
-        cursor.execute(
-            "DELETE FROM urls WHERE url = %s AND owner = %s;",
-            (link.casefold(), user.id),
-        )
+    return result
 
-    logging.info(f"Link {link} has been deleted from the database.")
+
+def delete_link(connection, link_id):
+    with connection.cursor(cursor_factory=psycopg2.extras.NamedTupleCursor) as cursor:
+        logging.info(f"Deleting link {link_id}...")
+        cursor.execute("DELETE FROM urls WHERE id = %s;", (link_id,))
+
+    logging.info(f"Link {link_id} has been deleted from the database.")

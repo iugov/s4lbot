@@ -3,7 +3,13 @@ import callbacks
 import logging
 
 from telegram import MessageEntity
-from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
+from telegram.ext import (
+    CommandHandler,
+    Filters,
+    MessageHandler,
+    Updater,
+    CallbackQueryHandler,
+)
 
 from settings import API_TOKEN
 
@@ -32,6 +38,18 @@ def main():
 
     dp.add_handler(MessageHandler(Filters.regex("Help"), callbacks.help))
     dp.add_handler(CommandHandler("help", callbacks.help))
+
+    dp.add_handler(
+        CallbackQueryHandler(callbacks.expand_link, pattern="expand")
+    )  # Enter link overview menu.
+    dp.add_handler(
+        CallbackQueryHandler(callbacks.delete_link, pattern="delete")
+    )  # Enter link deletion menu.
+    dp.add_handler(
+        CallbackQueryHandler(callbacks.delete_link_confirmed, pattern="confirm_delete")
+    )
+
+    dp.add_handler(CallbackQueryHandler(callbacks.go_back, pattern="back_to"))
 
     dp.add_handler(MessageHandler(Filters.command, callbacks.unknown))
 

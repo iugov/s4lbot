@@ -116,16 +116,18 @@ def add_links(update: Update, context: CallbackContext):
                 distinct_links = set([url.casefold() for url in urls])
 
             if distinct_links:
-                context.bot.send_message(
+                success = context.bot.send_message(
                     chat_id=update.message.chat_id,
                     text=f"⏳ Saving your link{'s' if len(distinct_links) > 1 else ''}... ⏳",
                     disable_notification=True,
                 )
+
                 db.add_links(connection, distinct_links, update.message.from_user)
-                context.bot.send_message(
+
+                context.bot.edit_message_text(
                     chat_id=update.message.chat_id,
+                    message_id=success.message_id,
                     text=f"✨ {len(distinct_links)} link{'s' if len(distinct_links) > 1 else ''} saved ✨",
-                    disable_notification=True,
                 )
             else:
                 context.bot.send_message(
@@ -136,7 +138,7 @@ def add_links(update: Update, context: CallbackContext):
 
 
 @send_typing_action
-def get_links(update: Update, context: CallbackContext):
+def get_links(update: Update, context: CallbackContext, editable_message_id=None):
     def build_menu(buttons, n_cols, header_buttons=None, footer_buttons=None):
         menu = [buttons[i : i + n_cols] for i in range(0, len(buttons), n_cols)]
         if header_buttons:
@@ -146,19 +148,92 @@ def get_links(update: Update, context: CallbackContext):
         return menu
 
     with db.connect() as connection:
-        links = db.get_links(connection, update.message.from_user)
+        links = db.get_links(connection, update.effective_user)
 
-    if not links:
-        context.bot.send_message(
-            chat_id=update.message.chat_id, text="There are no saved links."
+        if not links:
+            context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=f"You don't have any saved links.",
+            )
+            return
+
+        buttons = []
+        for link in links:
+            buttons.append(
+                telegram.InlineKeyboardButton(
+                    link.title, callback_data=f"expand:{link.id}"
+                )
+            )
+
+    reply_markup = telegram.InlineKeyboardMarkup(build_menu(buttons, n_cols=1))
+
+    if editable_message_id:
+        return context.bot.edit_message_text(
+            chat_id=update.effective_chat.id,
+            message_id=editable_message_id,
+            text=f"Other links you saved:",
+            reply_markup=reply_markup,
         )
-        return False
+    else:
+        return context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=f"You saved:",
+            reply_markup=reply_markup,
+        )
 
-    button_list = [
-        telegram.InlineKeyboardButton(link.title, url=link.url) for link in links
-    ]
 
-    reply_markup = telegram.InlineKeyboardMarkup(build_menu(button_list, n_cols=1))
-    context.bot.send_message(
-        chat_id=update.message.chat_id, text=f"Here you go", reply_markup=reply_markup
+def expand_link(update, context):
+    query = update.callback_query
+    link_id = query.data.split("expand:")[1]
+
+    with db.connect() as connection:
+        link = db.get_link(connection, link_id)
+
+    context.bot.edit_message_text(
+        chat_id=query.message.chat_id,
+        message_id=query.message.message_id,
+        text=f"Here it is: {link.title}",
+        reply_markup=keyboards.link_expand(link),
     )
+
+
+def delete_link(update, context):
+    query = update.callback_query
+    link_id = query.data.split("delete:")[1]
+
+    with db.connect() as connection:
+        link = db.get_link(connection, link_id)
+
+    context.bot.edit_message_text(
+        chat_id=query.message.chat_id,
+        message_id=query.message.message_id,
+        text=f'You are about to delete a link to "{link.title}" ({link.url})\nAre you sure?',
+        reply_markup=keyboards.link_delete(link),
+    )
+
+
+def delete_link_confirmed(update, context):
+    query = update.callback_query
+    link_id = query.data.split("confirm_delete:")[1]
+
+    with db.connect() as connection:
+        link = db.get_link(connection, link_id)
+        db.delete_link(connection, link_id)
+
+        msg = context.bot.edit_message_text(
+            chat_id=query.message.chat_id,
+            message_id=query.message.message_id,
+            text=f'"{link.title}" link has been deleted.',
+        )
+
+    get_links(update, context, editable_message_id=msg.message_id)
+
+
+def go_back(update, context):
+    query = update.callback_query
+    choice = query.data.split("back_to:")[1]
+
+    if "links" in choice:
+        get_links(update, context, editable_message_id=query.message.message_id)
+    elif "expand" in choice:
+        expand_link(update, context)
