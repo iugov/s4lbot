@@ -2,12 +2,13 @@
 import logging
 import sys
 import unittest
+from datetime import datetime
 
 sys.path.append("src")
 
 from telegram import User
 from settings import DB, DEVELOPERS
-from common import log, get_random_tid
+from common import log, get_random_id
 from utils import db
 
 
@@ -36,75 +37,47 @@ class TestDatabase(unittest.TestCase):
     def test_lookup_user(self):
         with db.connect() as connection:
             self.assertEqual(
-                db.lookup_user(connection, DEVELOPERS[0])["tid"], DEVELOPERS[0]
+                db.lookup_user(connection, DEVELOPERS[0]).id, DEVELOPERS[0]
             )
-            self.assertEqual(
-                db.lookup_user(connection, DEVELOPERS[1])["tid"], DEVELOPERS[1]
-            )
-            self.assertFalse(db.lookup_user(connection, get_random_tid(connection)))
-            self.assertFalse(db.lookup_user(connection, get_random_tid(connection)))
+            self.assertFalse(db.lookup_user(connection, get_random_id(connection)))
+            self.assertFalse(db.lookup_user(connection, get_random_id(connection)))
 
     @log
     def test_add_user(self):
         with db.connect() as connection:
+            timestamp = datetime.now()
             user = User(
-                id=get_random_tid(connection),
-                first_name="Alpha",
-                last_name="Beta",
-                username="s4lbot_test",
+                id=get_random_id(connection),
+                first_name="Augustus",
                 is_bot=False,
+                joined_on=timestamp,
             )
 
-            db.add_user(connection, user)
+            db.add_user(connection, user, timestamp)
 
             result = db.lookup_user(connection, user.id)
             self.assertTrue(result)
-            self.assertEqual(result["tid"], user.id)
-            self.assertEqual(result["fname"], user.first_name)
-            self.assertEqual(result["lname"], user.last_name)
-            self.assertEqual(result["username"], user.username)
+            self.assertEqual(result.id, user.id)
+            self.assertEqual(result.first_name, user.first_name)
+            self.assertEqual(result.joined_on.ctime(), timestamp.ctime())
 
             db.delete_user(connection, user)
 
     @log
     def test_update_user(self):
-
-        initial_first_name = "Alpha"
-        initial_last_name = "Beta"
-        initial_username = "0sAD78sda9sA9K"
-
         with db.connect() as connection:
-            user = User(
-                id=get_random_tid(connection),
-                first_name=initial_first_name,
-                last_name=initial_last_name,
-                username=initial_username,
-                is_bot=False,
-            )
+            uid = get_random_id(connection)
+            user = User(id=uid, first_name="Augustus", is_bot=False)
 
-            db.add_user(connection, user)
+            db.add_user(connection, user, datetime.utcnow())
 
-        user.first_name = "Centauri"
-        user.last_name = "Domini"
-        user.username = "7s7gh2LJs7As11"
+            updated_user = User(id=uid, first_name="Filamentis", is_bot=False)
 
-        logging.info(
-            f'User {user.id} changed their first name from "{initial_first_name}" to "{user.first_name}".'
-        )
-        logging.info(
-            f'User {user.id} changed their last name from "{initial_last_name}" to "{user.last_name}".'
-        )
-        logging.info(
-            f'User {user.id} changed their username from "{initial_username}" to "{user.username}".'
-        )
+            db.update_user(connection, updated_user, user)
 
-        with db.connect() as connection:
-            db.update_user(connection, user)
-
-            result = db.lookup_user(connection, user)
-            self.assertEqual(result["fname"], user.first_name)
-            self.assertEqual(result["lname"], user.last_name)
-            self.assertEqual(result["username"], user.username)
+            result = db.lookup_user(connection, user.id)
+            self.assertEqual(result.id, updated_user.id)
+            self.assertEqual(result.first_name, updated_user.first_name)
 
             db.delete_user(connection, user)
 
@@ -112,21 +85,14 @@ class TestDatabase(unittest.TestCase):
     def test_delete_user(self):
         with db.connect() as connection:
             user = User(
-                id=get_random_tid(connection),
-                first_name="Alpha",
-                last_name="Beta",
-                username="s4lbot_test",
-                is_bot=False,
+                id=get_random_id(connection), first_name="Augustus", is_bot=False
             )
 
-            db.add_user(connection, user)
-
-            result = db.lookup_user(connection, user)
-            self.assertTrue(result)
-            self.assertEqual(user.id, result["tid"])
+            db.add_user(connection, user, datetime.utcnow())
 
             db.delete_user(connection, user)
-            result = db.lookup_user(connection, user)
+
+            result = db.lookup_user(connection, user.id)
             self.assertFalse(result)
 
 

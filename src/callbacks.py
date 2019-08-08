@@ -9,7 +9,7 @@ from telegram.ext import CallbackContext
 import keyboards
 from settings import DEVELOPERS
 from utils import db
-from utils.misc import PROMPTS, get_title
+from utils.misc import PROMPTS
 
 
 def restricted(func):
@@ -44,10 +44,11 @@ def start(update: Update, context: CallbackContext):
     user = update.message.from_user
 
     with db.connect() as connection:
-        if db.lookup_user(connection, user.id):
-            db.update_user(connection, user)
-        else:
-            db.add_user(connection, user)
+        user_found = db.lookup_user(connection, user.id)
+        if not user_found:
+            db.add_user(connection, user, timestamp=update.effective_message.date)
+        elif user_found.first_name != user.first_name:
+            db.update_user(connection, user, user_found)
 
     context.bot.send_photo(
         chat_id=update.message.chat_id,
@@ -106,9 +107,14 @@ def add_links(update: Update, context: CallbackContext):
         logging.info(f"Got content of type url, text_link: {urls}")
 
         with db.connect() as connection:
-            distinct_links = set([url.casefold() for url in urls]) - set(
-                db.get_links(connection, update.message.from_user)
-            )
+            existing_links = db.get_links(connection, update.message.from_user)
+            if existing_links:
+                distinct_links = set([url.casefold() for url in urls]) - set(
+                    [link.url for link in existing_links]
+                )
+            else:
+                distinct_links = set([url.casefold() for url in urls])
+
             if distinct_links:
                 context.bot.send_message(
                     chat_id=update.message.chat_id,
@@ -149,7 +155,7 @@ def get_links(update: Update, context: CallbackContext):
         return False
 
     button_list = [
-        telegram.InlineKeyboardButton(get_title(link), url=link) for link in links
+        telegram.InlineKeyboardButton(link.title, url=link.url) for link in links
     ]
 
     reply_markup = telegram.InlineKeyboardMarkup(build_menu(button_list, n_cols=1))

@@ -22,15 +22,22 @@ def get_title(url):
     Returns:
         str -- contents of the <title> tag.
     """
+    original_url = url
     success = False
     while not success:
         try:
             response = requests.get(url)
             success = True
         except requests.exceptions.MissingSchema:
-            if not url.startswith("www."):
-                url = "www." + url
-            if not url.startswith("http://"):
-                url = "http://" + url
+            url = "http://" + url
+        except requests.exceptions.RequestException:  # If something goes horribly wrong, return url as title
+            return original_url
+
     page = bs4.BeautifulSoup(response.text, features="html.parser")
-    return page.title.text
+
+    try:
+        title = page.title.text
+    except AttributeError:
+        return original_url
+
+    return title

@@ -19,4 +19,4 @@ DB = {
 }
 
 # List of developers' telegram ids.
-DEVELOPERS = [334425818, 266888211]
+DEVELOPERS = [334425818]

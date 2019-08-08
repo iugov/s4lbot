@@ -20,8 +20,8 @@ def log(func):
     return wrapper
 
 
-def get_random_tid(connection):
-    user_ids = [record["tid"] for record in db.get_users(connection)]
+def get_random_id(connection):
+    user_ids = [record.id for record in db.get_users(connection)]
     while True:
         tid = random.randint(100000000, 999999999)
         if tid not in user_ids:
