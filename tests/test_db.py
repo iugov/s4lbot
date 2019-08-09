@@ -61,7 +61,7 @@ class TestDatabase(unittest.TestCase):
             self.assertEqual(result.first_name, user.first_name)
             self.assertEqual(result.joined_on.ctime(), timestamp.ctime())
 
-            db.delete_user(connection, user)
+            db.delete_user(connection, user.id)
 
     @log
     def test_update_user(self):
@@ -73,13 +73,13 @@ class TestDatabase(unittest.TestCase):
 
             updated_user = User(id=uid, first_name="Filamentis", is_bot=False)
 
-            db.update_user(connection, updated_user, user)
+            db.update_user(connection, updated_user, user.id)
 
             result = db.lookup_user(connection, user.id)
             self.assertEqual(result.id, updated_user.id)
             self.assertEqual(result.first_name, updated_user.first_name)
 
-            db.delete_user(connection, user)
+            db.delete_user(connection, user.id)
 
     @log
     def test_delete_user(self):
@@ -90,7 +90,7 @@ class TestDatabase(unittest.TestCase):
 
             db.add_user(connection, user, datetime.utcnow())
 
-            db.delete_user(connection, user)
+            db.delete_user(connection, user.id)
 
             result = db.lookup_user(connection, user.id)
             self.assertFalse(result)

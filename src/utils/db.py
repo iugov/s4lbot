@@ -29,14 +29,14 @@ def lookup_user(connection, uid):
         logging.info(f"Looking for user {uid} ...")
 
         cursor.execute("SELECT * FROM users WHERE id=%s", (uid,))
-        results = cursor.fetchone()
+        user = cursor.fetchone()
 
-    if results:
+    if user:
         logging.info(f"Found user {uid}.")
     else:
         logging.info(f"User not found.")
 
-    return results
+    return user
 
 
 def get_users(connection):
@@ -68,7 +68,10 @@ def add_user(connection, user: User, timestamp):
     logging.info(f"User {user.id} has been added to the database.")
 
 
-def update_user(connection, new_user: User, old_user):
+# TODO: Return user
+
+
+def update_user(connection, new_user: User, uid):
     with connection.cursor(cursor_factory=psycopg2.extras.NamedTupleCursor) as cursor:
         logging.info(f"Updating user {new_user.id}...")
 
@@ -76,29 +79,29 @@ def update_user(connection, new_user: User, old_user):
             """
             UPDATE users SET first_name = %(first_name)s WHERE id = %(id)s;
             """,
-            {"id": old_user.id, "first_name": new_user.first_name},
+            {"id": uid, "first_name": new_user.first_name},
         )
 
     logging.info(f"User {new_user.id} has been added to the database.")
 
 
-def delete_user(connection, user: User):
+def delete_user(connection, uid):
     with connection.cursor(cursor_factory=psycopg2.extras.NamedTupleCursor) as cursor:
-        logging.info(f"Deleting user {user.id}...")
-        cursor.execute("DELETE FROM users WHERE id = %s;", (user.id,))
+        logging.info(f"Deleting user {uid}...")
+        cursor.execute("DELETE FROM users WHERE id = %s;", (uid,))
 
-    logging.info(f"User {user.id} has been deleted from the database.")
+    logging.info(f"User {uid} has been deleted from the database.")
 
 
-def add_links(connection, links, user: User):
+def add_links(connection, links, uid):
     with connection.cursor(cursor_factory=psycopg2.extras.NamedTupleCursor) as cursor:
-        if not lookup_user(connection, user.id):
-            logging.error(f"User {user.id} does not exist.")
+        if not lookup_user(connection, uid):
+            logging.error(f"User {uid} does not exist.")
             return
 
         logging.info(f"Adding '{', '.join(links)}' to the database...")
 
-        data = [(user.id, link, get_title(link)) for link in links]
+        data = [(uid, link, get_title(link)) for link in links]
 
         insert_query = "INSERT INTO urls (owner, url, title) VALUES %s"
 
@@ -107,23 +110,23 @@ def add_links(connection, links, user: User):
         )
 
     logging.info(
-        f"Links '{', '.join(links)}' has been added to the database for User {user.id}."
+        f"Links '{', '.join(links)}' has been added to the database for User {uid}."
     )
 
 
-def get_links(connection, user: User):
+def get_links(connection, uid):
     with connection.cursor(cursor_factory=psycopg2.extras.NamedTupleCursor) as cursor:
-        if not lookup_user(connection, user.id):
-            logging.warning(f"User {user.id} does not exist. Exiting.")
+        if not lookup_user(connection, uid):
+            logging.warning(f"User {uid} does not exist. Exiting.")
             return
 
-        logging.info(f"Retrieving links for user {user.id} ...")
+        logging.info(f"Retrieving links for user {uid} ...")
 
-        cursor.execute("SELECT * FROM urls WHERE owner = %s;", (user.id,))
+        cursor.execute("SELECT * FROM urls WHERE owner = %s;", (uid,))
 
         results = cursor.fetchall()
 
-    logging.info(f"Links retrieved from user {user.id}.")
+    logging.info(f"Links retrieved from user {uid}.")
     return results
 
 

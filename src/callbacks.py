@@ -41,14 +41,16 @@ def send_typing_action(func):
 
 
 def start(update: Update, context: CallbackContext):
-    user = update.message.from_user
-
     with db.connect() as connection:
-        user_found = db.lookup_user(connection, user.id)
-        if not user_found:
-            db.add_user(connection, user, timestamp=update.effective_message.date)
-        elif user_found.first_name != user.first_name:
-            db.update_user(connection, user, user_found)
+        user = db.lookup_user(connection, update.message.from_user.id)
+        if not user:
+            db.add_user(
+                connection,
+                update.message.from_user,
+                timestamp=update.effective_message.date,
+            )
+        elif user.first_name != update.message.from_user.first_name:
+            db.update_user(connection, update.message.from_user, user.id)
 
     context.bot.send_photo(
         chat_id=update.message.chat_id,
@@ -57,14 +59,8 @@ def start(update: Update, context: CallbackContext):
 
     context.bot.send_message(
         chat_id=update.message.chat_id,
-        text=PROMPTS["welcome"],
+        text="{}\n\n{}".format(PROMPTS["welcome"], PROMPTS["alpha"]),
         reply_markup=keyboards.home(),
-        parse_mode=telegram.ParseMode.MARKDOWN,
-    )
-
-    context.bot.send_message(
-        chat_id=update.message.chat_id,
-        text=PROMPTS["alpha"],
         parse_mode=telegram.ParseMode.MARKDOWN,
     )
 
@@ -107,7 +103,7 @@ def add_links(update: Update, context: CallbackContext):
         logging.info(f"Got content of type url, text_link: {urls}")
 
         with db.connect() as connection:
-            existing_links = db.get_links(connection, update.message.from_user)
+            existing_links = db.get_links(connection, update.message.from_user.id)
             if existing_links:
                 distinct_links = set([url.casefold() for url in urls]) - set(
                     [link.url for link in existing_links]
@@ -122,7 +118,7 @@ def add_links(update: Update, context: CallbackContext):
                     disable_notification=True,
                 )
 
-                db.add_links(connection, distinct_links, update.message.from_user)
+                db.add_links(connection, distinct_links, update.message.from_user.id)
 
                 context.bot.edit_message_text(
                     chat_id=update.message.chat_id,
@@ -148,7 +144,7 @@ def get_links(update: Update, context: CallbackContext, editable_message_id=None
         return menu
 
     with db.connect() as connection:
-        links = db.get_links(connection, update.effective_user)
+        links = db.get_links(connection, update.effective_user.id)
 
         if not links:
             context.bot.send_message(
