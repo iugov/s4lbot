@@ -8,7 +8,7 @@ from telegram import (
 
 
 def home():
-    keyboard_markup = [[KeyboardButton("🗄️ View all")], [KeyboardButton("ℹ️ Help")]]
+    keyboard_markup = [[KeyboardButton("🗄️ View all"), KeyboardButton("ℹ️ Help")]]
     return ReplyKeyboardMarkup(keyboard_markup, resize_keyboard=True)
 
 
