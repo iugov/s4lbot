@@ -8,11 +8,13 @@ from telegram import (
 
 
 def home():
-    keyboard_markup = [[KeyboardButton("🗄️ View all"), KeyboardButton("ℹ️ Help")]]
+    """Return main keyboard."""
+    keyboard_markup = [[KeyboardButton("🗄️ View all")], [KeyboardButton("ℹ️ Help")]]
     return ReplyKeyboardMarkup(keyboard_markup, resize_keyboard=True)
 
 
 def link_expand(link):
+    """Return inline keyboard that allows users to interact with a specific link."""
     keyboard_markup = [
         [InlineKeyboardButton("Open", url=link.url)],
         [InlineKeyboardButton("Delete", callback_data=f"delete:{link.id}")],
@@ -22,6 +24,7 @@ def link_expand(link):
 
 
 def link_delete(link):
+    """Return inline keyboard that allows users to confirm deletion."""
     keyboard_markup = [
         [
             InlineKeyboardButton(

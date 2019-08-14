@@ -10,6 +10,8 @@ from utils import db
 
 
 def log(func):
+    """Logging decorator. Used to track wrapped function's lifecycle."""
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         logging.info(f"Initiate | {func.__name__}")
@@ -21,6 +23,15 @@ def log(func):
 
 
 def get_random_id(connection):
+    """Generate a random number between 100000000, 999999999 (like Telegram ids).
+    Also make sure that the generated number is not present in the `id` column of `users` table.
+    
+    Args:
+        connection (:class:`psycopg2.extensions.connection`): Connection object.
+    
+    Returns:
+        :obj:`int`: Generated id.
+    """
     user_ids = [record.id for record in db.get_users(connection)]
     while True:
         tid = random.randint(100000000, 999999999)

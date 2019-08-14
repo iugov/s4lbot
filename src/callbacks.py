@@ -7,29 +7,13 @@ from telegram import Update
 from telegram.ext import CallbackContext
 
 import keyboards
-from settings import DEVELOPERS
 from utils import db
 from utils.misc import PROMPTS
 
 
-def restricted(func):
-    @wraps(func)
-    def wrapped(update: Update, context: CallbackContext, *args, **kwargs):
-        user_id = update.effective_user.id
-        if user_id in DEVELOPERS:
-            return func(update, context, *args, **kwargs)
-        else:
-            context.bot.send_message(
-                chat_id=update.message.chat_id,
-                text=PROMPTS["no_access"],
-                parse_mode=telegram.ParseMode.MARKDOWN,
-            )
-            return
-
-    return wrapped
-
-
 def send_typing_action(func):
+    """Display `typing` in chat when executing a callback function."""
+
     @wraps(func)
     def wrapped(update, context, *args, **kwargs):
         context.bot.send_chat_action(
@@ -41,6 +25,9 @@ def send_typing_action(func):
 
 
 def start(update: Update, context: CallbackContext):
+    """Called on `/start`. Add/update user and introduce them to the bot."""
+    user = update.message.from_user
+
     with db.connect() as connection:
         user = db.lookup_user(connection, update.message.from_user.id)
         if not user:
@@ -66,6 +53,7 @@ def start(update: Update, context: CallbackContext):
 
 
 def help(update: Update, context: CallbackContext):
+    """Called on `/help`. Displays a help message."""
     context.bot.send_message(
         chat_id=update.message.chat_id,
         text=PROMPTS["help"],
@@ -83,9 +71,10 @@ def help(update: Update, context: CallbackContext):
 
 
 def unknown(update: Update, context: CallbackContext):
+    """Called whenever an unrecognized command is invoked."""
     context.bot.send_message(
         chat_id=update.message.chat_id,
-        text="Hmm... I don't know that one. Have you tried */help*?",
+        text="I don't know that one. Maybe try /help?",
         parse_mode=telegram.ParseMode.MARKDOWN,
     )
 
@@ -97,6 +86,7 @@ def error(update: Update, context: CallbackContext):
 
 @send_typing_action
 def add_links(update: Update, context: CallbackContext):
+    """Parse urls from message, add all unique new ones to the database."""
     urls = update.message.parse_entities(["url", "text_link"]).values()
 
     if urls:
@@ -135,6 +125,15 @@ def add_links(update: Update, context: CallbackContext):
 
 @send_typing_action
 def get_links(update: Update, context: CallbackContext, editable_message_id=None):
+    """Display an inline menu with user's links.
+        
+        Args:
+            update (:class:`telegram.Update`): Update object.
+            update (:class:`telegram.CallbackContext`): CallbackContext object.
+            editable_message_id (:obj:`int`): Id of the message to be edited (this is used to invoke this
+            function from within CallbackQueryHandler's callback function and be able to edit the original keyboard)
+    """
+
     def build_menu(buttons, n_cols, header_buttons=None, footer_buttons=None):
         menu = [buttons[i : i + n_cols] for i in range(0, len(buttons), n_cols)]
         if header_buttons:
@@ -178,7 +177,16 @@ def get_links(update: Update, context: CallbackContext, editable_message_id=None
         )
 
 
-def expand_link(update, context):
+def expand_link(update: Update, context: CallbackContext):
+    """Display an inline menu with user's links.
+    
+    CallbackQuery.data holds a string with the following syntax: "expand:{LINK_ID}".
+    We use that LINK_ID to fetch the link from the database and show it via `link_expand` keyboard.
+
+        Args:
+            update (:class:`telegram.Update`): Update object.
+            update (:class:`telegram.CallbackContext`): CallbackContext object.
+    """
     query = update.callback_query
     link_id = query.data.split("expand:")[1]
 
@@ -193,7 +201,16 @@ def expand_link(update, context):
     )
 
 
-def delete_link(update, context):
+def delete_link(update: Update, context: CallbackContext):
+    """Display an inline menu with a confirmation prompt.
+    
+    CallbackQuery.data holds a string with the following syntax: "delete:{LINK_ID}".
+    We use that LINK_ID to fetch the link from the database and show it via `link_delete` keyboard.
+
+        Args:
+            update (:class:`telegram.Update`): Update object.
+            update (:class:`telegram.CallbackContext`): CallbackContext object.
+    """
     query = update.callback_query
     link_id = query.data.split("delete:")[1]
 
@@ -208,7 +225,16 @@ def delete_link(update, context):
     )
 
 
-def delete_link_confirmed(update, context):
+def delete_link_confirmed(update: Update, context: CallbackContext):
+    """Delete the link specified in the callback query.
+    
+    CallbackQuery.data holds a string with the following syntax: "confirm_delete:{LINK_ID}".
+    We use that LINK_ID to delete that link from the database.
+
+        Args:
+            update (:class:`telegram.Update`): Update object.
+            update (:class:`telegram.CallbackContext`): CallbackContext object.
+    """
     query = update.callback_query
     link_id = query.data.split("confirm_delete:")[1]
 
@@ -225,7 +251,17 @@ def delete_link_confirmed(update, context):
     get_links(update, context, editable_message_id=msg.message_id)
 
 
-def go_back(update, context):
+def go_back(update: Update, context: CallbackContext):
+    """Return to the inline menu specified in the callback query.
+    
+    CallbackQuery.data holds a string with the following syntax: "back_to:[links|expand:{LINK_ID}]".
+      - `links` token suggests that we should return to an overview of all links (by calling get_links).
+      - `expand` token suggests that we should return to a particular link overview (also specified in the token)
+
+        Args:
+            update (:class:`telegram.Update`): Update object.
+            update (:class:`telegram.CallbackContext`): CallbackContext object.
+    """
     query = update.callback_query
     choice = query.data.split("back_to:")[1]
 

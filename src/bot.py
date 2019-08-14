@@ -23,6 +23,8 @@ def main():
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler("start", callbacks.start))
+
+    # Handles messages with valid urls.
     dp.add_handler(
         MessageHandler(
             Filters.text
@@ -39,16 +41,18 @@ def main():
     dp.add_handler(MessageHandler(Filters.regex("Help"), callbacks.help))
     dp.add_handler(CommandHandler("help", callbacks.help))
 
-    dp.add_handler(
-        CallbackQueryHandler(callbacks.expand_link, pattern="expand")
-    )  # Enter link overview menu.
-    dp.add_handler(
-        CallbackQueryHandler(callbacks.delete_link, pattern="delete")
-    )  # Enter link deletion menu.
+    # Enter 'link_expand' menu (see `src/keyboards.py`).
+    dp.add_handler(CallbackQueryHandler(callbacks.expand_link, pattern="expand"))
+
+    # Enter 'link_delete' menu (see `src/keyboards.py`).
+    dp.add_handler(CallbackQueryHandler(callbacks.delete_link, pattern="delete"))
+
+    # Delete link when deletion is confirmed.
     dp.add_handler(
         CallbackQueryHandler(callbacks.delete_link_confirmed, pattern="confirm_delete")
     )
 
+    # Return to the previous inline menu (specified ReplyMarkup, effectively).
     dp.add_handler(CallbackQueryHandler(callbacks.go_back, pattern="back_to"))
 
     dp.add_handler(MessageHandler(Filters.command, callbacks.unknown))
