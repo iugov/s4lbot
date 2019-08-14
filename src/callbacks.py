@@ -200,6 +200,8 @@ def expand_link(update: Update, context: CallbackContext):
         reply_markup=keyboards.link_expand(link),
     )
 
+    query.answer()
+
 
 def delete_link(update: Update, context: CallbackContext):
     """Display an inline menu with a confirmation prompt.
@@ -223,6 +225,8 @@ def delete_link(update: Update, context: CallbackContext):
         text=f'You are about to delete a link to "{link.title}" ({link.url})\nAre you sure?',
         reply_markup=keyboards.link_delete(link),
     )
+
+    query.answer()
 
 
 def delete_link_confirmed(update: Update, context: CallbackContext):
@@ -263,6 +267,8 @@ def go_back(update: Update, context: CallbackContext):
             update (:class:`telegram.CallbackContext`): CallbackContext object.
     """
     query = update.callback_query
+    query.answer()
+
     choice = query.data.split("back_to:")[1]
 
     if "links" in choice:
