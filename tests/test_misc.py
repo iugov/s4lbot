@@ -11,18 +11,13 @@ from utils import misc
 class TestMisc(unittest.TestCase):
     @log
     def test_get_title(self):
-        expected_title = "Example Domain"
-        self.assertEqual(misc.get_title("example.com"), expected_title)
-        self.assertEqual(misc.get_title("www.example.com"), expected_title)
-        self.assertEqual(misc.get_title("http://www.example.com"), expected_title)
-        self.assertEqual(misc.get_title("https://www.example.com"), expected_title)
-        self.assertEqual(misc.get_title("example.qwq"), "example.qwq")
+        self.assertEqual(misc.get_title("example.com"), "example.com")
+        self.assertEqual(misc.get_title("www.example.com"), "www.example.com")
+        self.assertEqual(misc.get_title("http://www.example.com"), "Example Domain")
+        self.assertEqual(misc.get_title("https://www.example.com"), "Example Domain")
+        self.assertEqual(misc.get_title("example.inv"), "example.inv")
         self.assertEqual(
             misc.get_title("https://www.example.qwq"), "https://www.example.qwq"
-        )
-        self.assertEqual(
-            misc.get_title("https://www.asdnqelqkdsauicxzcdasdwww.com"),
-            "https://www.asdnqelqkdsauicxzcdasdwww.com",
         )
 
 

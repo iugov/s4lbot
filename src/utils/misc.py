@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from pathlib import Path
+from lxml.html import fromstring
 import requests
-import bs4
 
 
 # 'welcome': Welcome message. Used when `/start` command is invoked.
@@ -16,8 +16,7 @@ PROMPTS = {
 
 
 def get_title(url):
-    """Extracts the <title> tag from url.
-    Supports incomplete urls, such as 'example.com' instead of 'http://www.example.com'.
+    """Extracts the contents of <title> tag from url.
     
     Args:
         url (:obj:`str`): URL.
@@ -25,22 +24,11 @@ def get_title(url):
     Returns:
         :obj:`str`: Contents of the <title> tag.
     """
-    original_url = url
-    success = False
-    while not success:
-        try:
-            response = requests.get(url)
-            success = True
-        except requests.exceptions.MissingSchema:
-            url = "http://" + url
-        except requests.exceptions.RequestException:  # If something goes horribly wrong, return url as title
-            return original_url
-
-    page = bs4.BeautifulSoup(response.text, features="html.parser")
-
     try:
-        title = page.title.text
-    except AttributeError:
-        return original_url
+        response = requests.get(url, headers={"Accept-Language": "en-US,en;q=0.5"})
+    except requests.exceptions.RequestException:
+        return url
 
-    return title
+    title = fromstring(response.content).findtext(".//title")
+
+    return title if title else url
