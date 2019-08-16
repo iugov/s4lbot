@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+"""This module contains functions, which are used in Handlers provided by the 'python-telegram-bot' package."""
+
 import logging
 from functools import wraps
 

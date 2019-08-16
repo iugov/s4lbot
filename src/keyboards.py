@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+"""This module contains keyboards, which are used by the bot."""
+
 from telegram import (
     KeyboardButton,
     InlineKeyboardButton,

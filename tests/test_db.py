@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
+"""This module contains TestDatabase class for testing 'src/utils/db.py'."""
+
 import logging
 import sys
 import unittest
 from datetime import datetime
 
-sys.path.append("src")
-
 from telegram import User
+
+sys.path.append("src")
+from common import get_random_id, log
 from settings import DB, DEVELOPERS
-from common import log, get_random_id
 from utils import db
 
 

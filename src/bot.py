@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
-import callbacks
+"""This module contains the entry point of the bot and it's configuration instructions."""
+
 import logging
 
 from telegram import MessageEntity
 from telegram.ext import (
+    CallbackQueryHandler,
     CommandHandler,
     Filters,
     MessageHandler,
     Updater,
-    CallbackQueryHandler,
 )
 
+import callbacks
 from settings import API_TOKEN
 
 logging.basicConfig(

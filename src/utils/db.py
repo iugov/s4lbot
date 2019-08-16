@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
+"""This module contains functions, which help to connect and interact with the database."""
+
 import logging
 import sys
 
 import psycopg2
 import psycopg2.extras
+from telegram import User
 
 sys.path.append("src")
-
-from utils.misc import get_title
 from settings import DB
-from telegram import User
+from utils.misc import get_title
 
 
 def connect():

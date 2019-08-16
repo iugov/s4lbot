@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+"""This module contains TestMisc class for testing 'src/utils/misc.py'."""
+
 import sys
 import unittest
 
 sys.path.append("src")
-
 from common import log
 from utils import misc
 

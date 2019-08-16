@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+"""This module contains constants and environment variables, which are required to run the bot."""
+
 import os
 
 from dotenv import load_dotenv

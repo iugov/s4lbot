@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-from functools import wraps
+"""This module contains common functions, which are used across many test cases."""
+
 import logging
 import random
 import sys
+from functools import wraps
 
 sys.path.append("src")
-
 from utils import db
 
 

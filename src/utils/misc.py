@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+"""This module contains miscellaneous functions and variables used by the bot."""
+
 from pathlib import Path
-from lxml.html import fromstring
+
 import requests
+from lxml.html import fromstring
 
 
 # 'welcome': Welcome message. Used when `/start` command is invoked.
