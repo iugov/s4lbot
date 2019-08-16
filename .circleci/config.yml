@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/s4lbot
     docker:
-      - image: circleci/python:3.7.3
+      - image: circleci/python:3.7.4
         environment:
           PIPENV_VENV_IN_PROJECT: true
     steps:
@@ -11,14 +11,15 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            sudo pip install pipenv
-            pipenv install --dev
+            sudo pip install --upgrade pipenv
+            pipenv install --clear --dev
+            pipenv update
       - run:
           name: run tests
           command: |
             mkdir test-results
             mkdir test-reports
-            pipenv run flake8 --exclude=.venv/ --ignore=E203,E402,E501,W293,W503 --statistics
+            pipenv run flake8 --statistics
             pipenv run pytest --cov tests/
             pipenv run coverage xml
             pipenv run python-codacy-coverage -r coverage.xml
