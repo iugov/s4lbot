@@ -16,7 +16,7 @@ python-dotenv = "*"
 python-telegram-bot = "*"
 requests = "*"
 psycopg2-binary = "*"
-beautifulsoup4 = "*"
+lxml = "*"
 
 [requires]
 python_version = "3.7"
