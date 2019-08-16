@@ -4,7 +4,7 @@
 from pathlib import Path
 
 import requests
-from lxml.html import fromstring
+from lxml.html import fromstring  # nosec
 
 
 # 'welcome': Welcome message. Used when `/start` command is invoked.
@@ -18,20 +18,22 @@ PROMPTS = {
 }
 
 
-def get_title(url):
+def get_title(url, lang="en"):
     """Extracts the contents of <title> tag from url.
-    
+
     Args:
         url (:obj:`str`): URL.
-    
+
     Returns:
         :obj:`str`: Contents of the <title> tag.
     """
+    lang_header = {"en": "en-US, en", "ru": "ru-RU, ru"}
+
     try:
-        response = requests.get(url, headers={"Accept-Language": "en-US,en;q=0.5"})
+        response = requests.get(url, headers={"Accept-Language": lang_header[lang]})
     except requests.exceptions.RequestException:
         return url
 
-    title = fromstring(response.content).findtext(".//title")
+    title = fromstring(response.content).findtext(".//title")  # nosec
 
     return title if title else url

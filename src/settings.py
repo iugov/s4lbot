@@ -20,5 +20,5 @@ DB = {
     "krbsrvname": os.getenv("DB_KRBSRVNAME"),
 }
 
-# List of developers' telegram ids.
-DEVELOPERS = [334425818]
+# Developers' telegram ids.
+DEVELOPERS = {"iugov": 334425818}

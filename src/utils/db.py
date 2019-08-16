@@ -33,7 +33,7 @@ def connect():
 
 def lookup_user(connection, uid):
     """Fetch user from the database.
-        
+
         Args:
             connection (:class:`psycopg2.extensions.connection`): Connection object.
             uid (:obj:`int`): User's id (unique identifier provided by Telegram).
@@ -55,9 +55,26 @@ def lookup_user(connection, uid):
     return user
 
 
+def get_lang(connection, uid):
+    """Get user's language (two characters).
+
+        Args:
+            connection (:class:`psycopg2.extensions.connection`): Connection object.
+            uid (:obj:`int`): User's id (unique identifier provided by Telegram).
+
+        Returns:
+            :obj:`str`: On success, two characters of the language are returned.
+    """
+    with connection.cursor(cursor_factory=psycopg2.extras.NamedTupleCursor) as cursor:
+        cursor.execute("SELECT * FROM users WHERE id = %s;", (uid,))
+        user = cursor.fetchone()
+
+    return user.lang
+
+
 def get_users(connection):
     """Fetch all users from the database.
-        
+
         Args:
             connection (:class:`psycopg2.extensions.connection`): Connection object.
 
@@ -76,7 +93,7 @@ def get_users(connection):
 
 def add_user(connection, user: User, timestamp):
     """Add user to the database.
-        
+
         Args:
             connection (:class:`psycopg2.extensions.connection`): Connection object.
             user: (:class:`telegram.user.User`): User object.
@@ -101,7 +118,7 @@ def add_user(connection, user: User, timestamp):
 
 def update_user(connection, new_user: User, uid):
     """Update info for an existing user.
-        
+
         Args:
             connection (:class:`psycopg2.extensions.connection`): Connection object.
             new_user: (:class:`telegram.user.User`): User object.
@@ -122,7 +139,7 @@ def update_user(connection, new_user: User, uid):
 
 def delete_user(connection, uid):
     """Delete an existing user.
-        
+
         Args:
             connection (:class:`psycopg2.extensions.connection`): Connection object.
             uid: (:obj:`int`): User id.
@@ -136,7 +153,7 @@ def delete_user(connection, uid):
 
 def add_links(connection, links, uid):
     """Insert a number of links into the 'urls' table.
-        
+
         Args:
             connection (:class:`psycopg2.extensions.connection`): Connection object.
             links: (List[:obj:`str`]): List of raw urls.
@@ -149,7 +166,8 @@ def add_links(connection, links, uid):
 
         logging.info(f"Adding '{', '.join(links)}' to the database...")
 
-        data = [(uid, link, get_title(link)) for link in links]
+        lang = get_lang(connection, uid)
+        data = [(uid, link, get_title(link, lang=lang)) for link in links]
 
         insert_query = "INSERT INTO urls (owner, url, title) VALUES %s"
 
@@ -164,11 +182,11 @@ def add_links(connection, links, uid):
 
 def get_links(connection, uid):
     """Retrieve all links from the 'urls' table for the specified user.
-        
+
         Args:
             connection (:class:`psycopg2.extensions.connection`): Connection object.
             uid: (:obj:`int`): User id.
-        
+
         Returns:
             List[:class:`psycopg2.extras.Record`]: On success, list of links (named tuples) is returned.
     """
@@ -189,10 +207,10 @@ def get_links(connection, uid):
 
 def get_link(connection, link_id):
     """Retrieve a link from 'urls' table based on it's unique id.
-        
+
         Args:
             link_id: (:obj:`int`): Link's id.
-        
+
         Returns:
             :class:`psycopg2.extras.Record`: On success, one link (named tuple) is returned.
     """
@@ -205,7 +223,7 @@ def get_link(connection, link_id):
 
 def delete_link(connection, link_id):
     """Delete a link from 'urls' table based on it's unique id.
-        
+
         Args:
             link_id: (:obj:`int`): Link's id.
     """

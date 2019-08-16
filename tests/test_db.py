@@ -39,10 +39,15 @@ class TestDatabase(unittest.TestCase):
     def test_lookup_user(self):
         with db.connect() as connection:
             self.assertEqual(
-                db.lookup_user(connection, DEVELOPERS[0]).id, DEVELOPERS[0]
+                db.lookup_user(connection, DEVELOPERS["iugov"]).id, DEVELOPERS["iugov"]
             )
             self.assertFalse(db.lookup_user(connection, get_random_id(connection)))
             self.assertFalse(db.lookup_user(connection, get_random_id(connection)))
+
+    @log
+    def test_get_lang(self):
+        with db.connect() as connection:
+            self.assertEqual(db.get_lang(connection, DEVELOPERS["iugov"]), "en")
 
     @log
     def test_add_user(self):
