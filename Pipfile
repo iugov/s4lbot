@@ -7,11 +7,16 @@ verify_ssl = true
 black = "*"
 pytest = "*"
 pytest-cov = "*"
-python-dotenv = "*"
 flake8 = "*"
+pre-commit = "*"
+codacy-coverage = "*"
 
 [packages]
-python-telegram-bot = "==11.1.0"
+python-dotenv = "*"
+python-telegram-bot = "*"
+requests = "*"
+psycopg2-binary = "*"
+lxml = "*"
 
 [requires]
 python_version = "3.7"
