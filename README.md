@@ -6,6 +6,8 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6a2e4e371be445e7ab8b1d7bb83a2e0d)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=iugov/s4lbot&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/6a2e4e371be445e7ab8b1d7bb83a2e0d)](https://www.codacy.com?utm_source=github.com&utm_medium=referral&utm_content=iugov/s4lbot&utm_campaign=Badge_Coverage?branch=develop)
 
+> This project is no longer maintained.
+
 [In-development version available in Telegram](https://t.me/S4LDevBot)
 
 S4L bot lets you save links (to articles, videos, books, etc.), categorize them and receive notifications so that you actually come back to what you saved and get things done.
